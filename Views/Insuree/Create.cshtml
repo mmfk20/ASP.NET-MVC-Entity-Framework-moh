@@ -1,0 +1,70 @@
+@model InsuranceMVC.Models.Insuree
+
+@{
+    ViewBag.Title = "Create Quote";
+}
+
+<h2>Create Quote</h2>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.FirstName)
+            @Html.EditorFor(m => m.FirstName)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.LastName)
+            @Html.EditorFor(m => m.LastName)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.EmailAddress)
+            @Html.EditorFor(m => m.EmailAddress)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.DateOfBirth)
+            @Html.EditorFor(m => m.DateOfBirth)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CarYear)
+            @Html.EditorFor(m => m.CarYear)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CarMake)
+            @Html.EditorFor(m => m.CarMake)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CarModel)
+            @Html.EditorFor(m => m.CarModel)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.SpeedingTickets)
+            @Html.EditorFor(m => m.SpeedingTickets)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.DUI)
+            @Html.CheckBoxFor(m => m.DUI)
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Full Coverage?")
+            @Html.CheckBoxFor(m => m.CoverageType)
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Get Quote" class="btn btn-primary" />
+        </div>
+    </div>
+}
