@@ -1,75 +1,51 @@
-using System;
-using System.Linq;
-using System.Web.Mvc;
-using InsuranceMVC.Models;
-
-namespace InsuranceMVC.Controllers
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(Insuree insuree)
 {
-    public class InsureeController : Controller
+    if (ModelState.IsValid)
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        // Start with base $50
+        decimal quote = 50m;
 
-        // GET: Insuree/Create
-        public ActionResult Create()
+        // Calculate age
+        int age = DateTime.Now.Year - insuree.DateOfBirth.Year;
+        if (DateTime.Now.DayOfYear < insuree.DateOfBirth.DayOfYear)
+            age--;
+
+        // Age-based pricing
+        if (age <= 18) quote += 100;
+        else if (age >= 19 && age <= 25) quote += 50;
+        else if (age >= 26) quote += 25;
+
+        // Car year pricing
+        if (insuree.CarYear < 2000) quote += 25;
+        if (insuree.CarYear > 2015) quote += 25;
+
+        // Car make/model pricing
+        if (insuree.CarMake.ToLower() == "porsche")
         {
-            return View();
+            quote += 25;
+            if (insuree.CarModel.ToLower() == "911 carrera")
+                quote += 25; // Total $50 for 911 Carrera
         }
 
-        // POST: Insuree/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(Insuree insuree)
-        {
-            if (ModelState.IsValid)
-            {
-                // Base
-                decimal quote = 50m;
+        // Speeding tickets
+        quote += insuree.SpeedingTickets * 10;
 
-                // Age
-                int age = DateTime.Now.Year - insuree.DateOfBirth.Year;
-                if (DateTime.Now.DayOfYear < insuree.DateOfBirth.DayOfYear)
-                    age--;
+        // DUI increases total by 25%
+        if (insuree.DUI) quote *= 1.25m;
 
-                if (age <= 18) quote += 100;
-                else if (age >= 19 && age <= 25) quote += 50;
-                else if (age >= 26) quote += 25;
+        // Full coverage increases total by 50%
+        if (insuree.CoverageType) quote *= 1.5m;
 
-                // Car year
-                if (insuree.CarYear < 2000) quote += 25;
-                else if (insuree.CarYear > 2015) quote += 25;
+        // Assign calculated quote
+        insuree.Quote = quote;
 
-                // Car make / model
-                if (insuree.CarMake.ToLower() == "porsche")
-                {
-                    quote += 25;
-                    if (insuree.CarModel.ToLower() == "911 carrera")
-                        quote += 25;
-                }
+        // Save to database
+        db.Insurees.Add(insuree);
+        db.SaveChanges();
 
-                // Tickets
-                quote += insuree.SpeedingTickets * 10;
-
-                // DUI
-                if (insuree.DUI) quote *= 1.25m;
-
-                // Full coverage
-                if (insuree.CoverageType) quote *= 1.5m;
-
-                // Save
-                insuree.Quote = quote;
-                db.Insurees.Add(insuree);
-                db.SaveChanges();
-
-                return RedirectToAction("Admin");
-            }
-            return View(insuree);
-        }
-
-        // GET: Insuree/Admin
-        public ActionResult Admin()
-        {
-            var insurees = db.Insurees.ToList();
-            return View(insurees);
-        }
+        return RedirectToAction("Admin");
     }
+    return View(insuree);
 }
